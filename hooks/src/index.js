@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import ReactDOM from "react-dom";
 
 const App = () => {
@@ -18,25 +18,34 @@ const App = () => {
   }
 };
 
-const usePlanetInfo = id => {  /*personal hook */
-  const [name, setName] = useState(null);
+const getPlanet = id => {
+  return fetch(`https://swapi.co/api/planets/${id}/`)
+    .then(res => res.json())
+    .then(data => data);
+};
+
+const useRequest = request => {
+  const [dataState, setDataState] = useState(null);
 
   useEffect(() => {
     let canceled = false;
-    fetch(`https://swapi.co/api/planets/${id}/`)
-      .then(res => res.json())
-      .then(data => !canceled && setName(data.name));
+    request().then(data => !canceled && setDataState(data));
     return () => (canceled = true);
-  }, [id]);
+  }, [request]);
 
-  return name;
+  return dataState;
+};
+
+const usePlanetInfo = id => {
+  const request = useCallback(() => getPlanet(id), [ id ])
+    return useRequest(request);
 };
 
 const PlanetInfo = ({ id }) => {
-  const name = usePlanetInfo(id);
+  const data = usePlanetInfo(id);
   return (
     <div>
-      {id} - {name}
+      {id} - {data && data.name}
     </div>
   );
 };
