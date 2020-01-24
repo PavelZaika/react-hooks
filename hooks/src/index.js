@@ -18,7 +18,7 @@ const App = () => {
   }
 };
 
-const PlanetInfo = ({ id }) => {
+const usePlanetInfo = id => {  /*personal hook */
   const [name, setName] = useState(null);
 
   useEffect(() => {
@@ -26,9 +26,14 @@ const PlanetInfo = ({ id }) => {
     fetch(`https://swapi.co/api/planets/${id}/`)
       .then(res => res.json())
       .then(data => !canceled && setName(data.name));
-      return () => canceled = true;
-  },[id]);
+    return () => (canceled = true);
+  }, [id]);
 
+  return name;
+};
+
+const PlanetInfo = ({ id }) => {
+  const name = usePlanetInfo(id);
   return (
     <div>
       {id} - {name}
